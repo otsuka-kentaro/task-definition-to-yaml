@@ -36,6 +36,13 @@ function asignKeys(taskDefinition) {
     }
     copied[key] = taskDefinition[camel(key)];
   }
+  // role の上書き指定
+  if (process.env.EXECUTION_ROLE_ARN) {
+    copied['execution_role_arn'] = process.env.EXECUTION_ROLE_ARN;
+  }
+  if (process.env.TASK_ROLE_ARN) {
+    copied['task_role_arn'] = process.env.TASK_ROLE_ARN;
+  }
 
   // container_definitions 設定
   copied['container_definitions'] = [];
@@ -45,6 +52,12 @@ function asignKeys(taskDefinition) {
     for (const key of containerDefinitionKeys) {
       copiedContainerDefinition[key] = containerDefinition[camel(key)];
     }
+
+    // image の tag を {{tag}} に変換
+    const imageArnSplited = copiedContainerDefinition['image'].split(':');
+    imageArnSplited[imageArnSplited.length - 1] = '{{tag}}';
+    copiedContainerDefinition['image'] = imageArnSplited.join(':');
+
     copied['container_definitions'].push(copiedContainerDefinition);
   }
 
