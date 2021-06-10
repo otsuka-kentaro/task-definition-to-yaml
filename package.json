@@ -1,0 +1,17 @@
+{
+  "name": "task-definition-to-yaml",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/otsuka-kentaro/task-definition-to-yaml.git",
+  "author": "otsuka-kentaro <kentaro_otsuka@metaps.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecs": "^3.17.0",
+    "js-yaml": "^4.1.0",
+    "snake-camel": "^1.0.8"
+  }
+}
