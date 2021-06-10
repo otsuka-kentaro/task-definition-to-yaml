@@ -4,19 +4,22 @@ const client = new ECS({});
 import { generate } from './yaml-generator.js'
 
 
-client.describeTaskDefinition({ taskDefinition: process.env.TASK_DEFINITION }).then(
-  (data) => {
-    console.log('success to execute command');
+// 指定のタスク定義の最新を取得
+const definitions = await client.listTaskDefinitions({
+  familyPrefix: process.env.TASK_DEFINITION_FAMILY,
+  sort: 'DESC',
+  maxResults: 1
+});
+if (definitions['taskDefinitionArns'].length == 0) {
+  console.error(`no task  definitions found. familyPrefix: ${process.env.TASK_DEFINITION_FAMILY}`);
+  exit();
+}
+const taskDefinitionArn = definitions.taskDefinitionArns[0];
+console.log(`taskDefinitionArn: ${taskDefinitionArn}`);
 
-    const file = `output/${process.env.TASK_DEFINITION}.yaml`;
-    generate(file, data.taskDefinition);
-    console.log(`success to write. file: ${file}`);
-  },
-  (error) => {
-    console.error('faield to execute');
-    console.error(error);
-  },
-  () => {
-    exit();
-  }
-);
+const data = await client.describeTaskDefinition({ taskDefinition: taskDefinitionArn });
+console.log(data.taskDefinition);
+
+const file = `output/${process.env.TASK_DEFINITION_FAMILY}.yaml`;
+generate(file, data.taskDefinition);
+console.log(`success to write. file: ${file}`);;
