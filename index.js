@@ -21,5 +21,5 @@ const data = await client.describeTaskDefinition({ taskDefinition: taskDefinitio
 console.log(data.taskDefinition);
 
 const file = `output/${process.env.TASK_DEFINITION_FAMILY}.yaml`;
-generate(file, data.taskDefinition);
+generate(file, data.taskDefinition, process.env.EXECUTION_ROLE_ARN, process.env.TASK_ROLE_ARN);
 console.log(`success to write. file: ${file}`);;

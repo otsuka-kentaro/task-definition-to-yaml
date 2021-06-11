@@ -27,7 +27,7 @@ const containerDefinitionKeys = [
   'docker_labels'
 ];
 
-function asignKeys(taskDefinition) {
+function asignKeys(taskDefinition, execution_role_arn, task_role_arn) {
   const copied = {};
   for (const key of taskDefinitionKeys) {
     // container_definitions は後で
@@ -37,11 +37,11 @@ function asignKeys(taskDefinition) {
     copied[key] = taskDefinition[camel(key)];
   }
   // role の上書き指定
-  if (process.env.EXECUTION_ROLE_ARN) {
-    copied['execution_role_arn'] = process.env.EXECUTION_ROLE_ARN;
+  if (execution_role_arn) {
+    copied['execution_role_arn'] = execution_role_arn;
   }
-  if (process.env.TASK_ROLE_ARN) {
-    copied['task_role_arn'] = process.env.TASK_ROLE_ARN;
+  if (task_role_arn) {
+    copied['task_role_arn'] = task_role_arn;
   }
 
   // container_definitions 設定
@@ -71,8 +71,8 @@ const sortKeys = (a, b) => {
 /**
  * @param taskDefinition AWS SDK の describe task definition で取得したデータを指定
  */
-export const generate = (file, taskDefinition) => {
-  const copied = asignKeys(taskDefinition);
+export const generate = (file, taskDefinition, execution_role_arn, task_role_arn) => {
+  const copied = asignKeys(taskDefinition, execution_role_arn, task_role_arn);
   const yamlText = yaml.dump(copied, { lineWidth: -1, sortKeys: sortKeys });
   fs.writeFileSync(file, yamlText);
 }
