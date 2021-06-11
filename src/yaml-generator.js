@@ -65,7 +65,7 @@ async function asignKeys(taskDefinition, execution_role_arn, task_role_arn, secr
       for (const secret of copiedContainerDefinition['secrets']) {
         const result = await SSMClient.getParameter({ Name: secret['valueFrom'], WithDecryption: true });
         environments.push({ name: secret['name'], value: result.Parameter.Value });
-        console.log(`secret converted: ${secret['name']}`)
+        console.log(`secret converted: ${secret['name']} (valueFrom: ${secret['valueFrom']})`)
       }
 
       copiedContainerDefinition['secrets'] = [];
