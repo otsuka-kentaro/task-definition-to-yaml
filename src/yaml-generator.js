@@ -72,6 +72,16 @@ async function asignKeys(taskDefinition, execution_role_arn, task_role_arn, secr
       copiedContainerDefinition['environment'] = copiedContainerDefinition['environment'].concat(environments);
     }
 
+    // 数値に変換
+    const environments = [];
+    for (const environment of copiedContainerDefinition['environment']) {
+      if (!isNaN(environment['value'])) {
+        environment['value'] = parseInt(environment['value']);
+      }
+      environments.push(environment);
+    }
+    copiedContainerDefinition['environment'] = environments;
+
     copied['container_definitions'].push(copiedContainerDefinition);
   }
 
