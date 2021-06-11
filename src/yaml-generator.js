@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
 import { camel } from 'snake-camel'
+import { SSMClient } from './client.js'
 
 const taskDefinitionKeys = [
   'execution_role_arn',
@@ -27,7 +28,7 @@ const containerDefinitionKeys = [
   'docker_labels'
 ];
 
-function asignKeys(taskDefinition, execution_role_arn, task_role_arn) {
+async function asignKeys(taskDefinition, execution_role_arn, task_role_arn, secret_to_environment) {
   const copied = {};
   for (const key of taskDefinitionKeys) {
     // container_definitions は後で
@@ -58,6 +59,19 @@ function asignKeys(taskDefinition, execution_role_arn, task_role_arn) {
     imageArnSplited[imageArnSplited.length - 1] = '{{tag}}';
     copiedContainerDefinition['image'] = imageArnSplited.join(':');
 
+    // secret を environment
+    if (secret_to_environment) {
+      const environments = [];
+      for (const secret of copiedContainerDefinition['secrets']) {
+        const result = await SSMClient.getParameter({ Name: secret['valueFrom'], WithDecryption: true });
+        environments.push({ name: secret['name'], value: result.Parameter.Value });
+        console.log(`secret converted: ${secret['name']}`)
+      }
+
+      copiedContainerDefinition['secrets'] = [];
+      copiedContainerDefinition['environment'] = copiedContainerDefinition['environment'].concat(environments);
+    }
+
     copied['container_definitions'].push(copiedContainerDefinition);
   }
 
@@ -71,8 +85,9 @@ const sortKeys = (a, b) => {
 /**
  * @param taskDefinition AWS SDK の describe task definition で取得したデータを指定
  */
-export const generate = (file, taskDefinition, execution_role_arn, task_role_arn) => {
-  const copied = asignKeys(taskDefinition, execution_role_arn, task_role_arn);
+export const generate = async (file, taskDefinition, execution_role_arn, task_role_arn, secret_to_environment) => {
+  const copied = await asignKeys(taskDefinition, execution_role_arn, task_role_arn, secret_to_environment);
+  console.log();
   const yamlText = yaml.dump(copied, { lineWidth: -1, sortKeys: sortKeys });
   fs.writeFileSync(file, yamlText);
 }

@@ -10,7 +10,9 @@ AWS_PROFILE=profile \
 AWS_REGION=ap-northeast-1 \
 EXECUTION_ROLE_ARN={override execution_role_arn} \
 TASK_ROLE_ARN={override task_role_arn} \
-TASK_DEFINITION_FAMILY={target-definition-family} yarn run start
+TASK_DEFINITION_FAMILY={target-definition-family} \
+SECRET_TO_ENVIRONMENT=true \
+yarn run start
 ```
 
 ### optional parameters
@@ -18,3 +20,4 @@ TASK_DEFINITION_FAMILY={target-definition-family} yarn run start
 - AWS_REGION
 - EXECUTION_ROLE_ARN
 - TASK_ROLE_ARN
+- SECRET_TO_ENVIRONMENT

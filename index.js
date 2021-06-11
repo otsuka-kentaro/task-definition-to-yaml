@@ -1,11 +1,9 @@
-import { ECS } from '@aws-sdk/client-ecs'
-const client = new ECS({});
-
-import { generate } from './yaml-generator.js'
+import { ECSClient } from './src/client.js'
+import { generate } from './src/yaml-generator.js'
 
 
 // 指定のタスク定義の最新を取得
-const definitions = await client.listTaskDefinitions({
+const definitions = await ECSClient.listTaskDefinitions({
   familyPrefix: process.env.TASK_DEFINITION_FAMILY,
   sort: 'DESC',
   maxResults: 1
@@ -17,9 +15,15 @@ if (definitions['taskDefinitionArns'].length == 0) {
 const taskDefinitionArn = definitions.taskDefinitionArns[0];
 console.log(`taskDefinitionArn: ${taskDefinitionArn}`);
 
-const data = await client.describeTaskDefinition({ taskDefinition: taskDefinitionArn });
+const data = await ECSClient.describeTaskDefinition({ taskDefinition: taskDefinitionArn });
 console.log(data.taskDefinition);
 
 const file = `output/${process.env.TASK_DEFINITION_FAMILY}.yaml`;
-generate(file, data.taskDefinition, process.env.EXECUTION_ROLE_ARN, process.env.TASK_ROLE_ARN);
+await generate(
+  file,
+  data.taskDefinition,
+  process.env.EXECUTION_ROLE_ARN,
+  process.env.TASK_ROLE_ARN,
+  process.env.SECRET_TO_ENVIRONMENT == 'true'
+);
 console.log(`success to write. file: ${file}`);;
