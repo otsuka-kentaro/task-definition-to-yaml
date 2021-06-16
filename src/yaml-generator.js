@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
-import { camel } from 'snake-camel'
+import { camel, snake } from 'snake-camel'
 import { SSMClient } from './client.js'
 
 const taskDefinitionKeys = [
@@ -83,6 +83,21 @@ async function asignKeys(taskDefinition, execution_role_arn, task_role_arn, secr
       environments.push(environment);
     }
     copiedContainerDefinition['environment'] = environments;
+
+    // ネストされたものを変換
+    // port_mappings
+    const portMappings = [];
+    for (const portMapping of copiedContainerDefinition['port_mappings']) {
+      const newPortMapping = {};
+      for (const portMappingKey of Object.keys(portMapping)) {
+        newPortMapping[snake(portMappingKey)] = portMapping[portMappingKey];
+      }
+      portMappings.push(newPortMapping);
+    }
+    copiedContainerDefinition['port_mappings'] = portMappings;
+    // log_configuration
+    copiedContainerDefinition['log_configuration']['log_driver'] = copiedContainerDefinition['log_configuration']['logDriver'];
+    delete copiedContainerDefinition['log_configuration']['logDriver'];
 
     copied['container_definitions'].push(copiedContainerDefinition);
   }
