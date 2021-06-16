@@ -9,6 +9,8 @@ const taskDefinitionKeys = [
   'network_mode',
   'task_role_arn',
   'network_mode',
+  'cpu',
+  'memory',
   'container_definitions',
 ];
 const containerDefinitionKeys = [
