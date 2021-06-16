@@ -62,7 +62,7 @@ async function asignKeys(taskDefinition, execution_role_arn, task_role_arn, secr
     copiedContainerDefinition['image'] = imageArnSplited.join(':');
 
     // secret を environment
-    if (secret_to_environment) {
+    if (secret_to_environment && copiedContainerDefinition['secrets']) {
       const environments = [];
       for (const secret of copiedContainerDefinition['secrets']) {
         const result = await SSMClient.getParameter({ Name: secret['valueFrom'], WithDecryption: true });
