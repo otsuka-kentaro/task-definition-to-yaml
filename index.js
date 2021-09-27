@@ -10,7 +10,7 @@ const definitions = await ECSClient.listTaskDefinitions({
 });
 if (definitions['taskDefinitionArns'].length == 0) {
   console.error(`no task  definitions found. familyPrefix: ${process.env.TASK_DEFINITION_FAMILY}`);
-  exit();
+  process.exit();
 }
 const taskDefinitionArn = definitions.taskDefinitionArns[0];
 console.log(`taskDefinitionArn: ${taskDefinitionArn}`);
